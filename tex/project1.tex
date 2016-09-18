@@ -1,0 +1,289 @@
+\documentclass[11pt,a4paper,notitlepage]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{setspace}
+\usepackage{epstopdf}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{epstopdf}
+\usepackage{hyperref}
+\usepackage{braket}
+\pagenumbering{arabic}
+
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+%\setlength{\parindent}{0pt}
+
+\lstdefinestyle{pystyle}{
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  backgroundcolor=\color{backcolour},
+  commentstyle=\color{dkgreen},
+  keywordstyle=\color{magenta},
+  numberstyle=\tiny\color{gray},
+  stringstyle=\color{codepurple},
+  basicstyle=\footnotesize,  
+  breakatwhitespace=false
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  numbers=left,
+  numbersep=5pt,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2
+}
+\lstdefinestyle{iStyle}{
+  language=IDL,
+  aboveskip=3mm,
+  belowskip=3mm,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  backgroundcolor=\color{backcolour},
+  commentstyle=\color{dkgreen},
+  keywordstyle=\color{magenta},
+  numberstyle=\tiny\color{gray},
+  stringstyle=\color{codepurple},
+  basicstyle=\footnotesize,  
+  breakatwhitespace=false
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  numbers=left,
+  numbersep=5pt,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2
+}
+	
+
+
+
+\title{\normalsize Fys4150: Introduction to \\
+\vspace{10mm}
+\huge Project 1\\
+\vspace{10mm}
+\normalsize Due date {\bf 19.rd of September, 2016 - 23:59}}
+
+% Skriv namnet ditt her og fjern kommenteringa
+\author{Øyvind B. Svendsen, Magnus Christopher Bareid \\ un: oyvinbsv, magnucb}
+
+\newcommand\pd[2]{\frac{\partial #1}{\partial #2}}
+\def\doubleunderline#1{\underline{\underline{#1}}}
+
+
+\begin{document}
+\noindent
+\maketitle
+\vspace{10mm}
+\begin{abstract}
+The aim of this project is to get familiar with various vector and matrix operations, from dynamic memory allocation to the usage of programs in the library package of the course.
+
+The student was invited to use either brute force-algorithms to calculate linear algebra, or to use a set of recommended linear algebra packages through Armadillo that simplify the syntax of linear algebra. Additionally, dynamic memory handling is expected.
+
+The students will showcase necessary algebra to perform the tasks given to them, and explain the way said algebra is implemented into algorithms. In essence, we're asked to simplify a linear second-order differential equation from the form of the Poisson equation, seen as
+\begin{align*}
+\nabla ^2 \Phi = -4\pi\rho(\mathbf{r})
+\end{align*}
+into a one-dimensional form bounded by Dirichlet boundary conditions.
+\begin{align*}
+-u''(x) = f(x)
+\end{align*}
+so that discretized linear algebra may be committed unto the equation.
+\end{abstract}
+\begin{center}
+\line(1,0){450}
+\end{center}
+
+\newpage
+\tableofcontents
+
+\newpage
+\section{Introduction}
+The production of this document will inevitably familiarize its authors with the programming language \verb|C++|, and to this end mathematical groundwork must first be elaborated to translate a Poisson equation from continuous calculus form, into a discretized numerical form.
+
+The Poisson equation is rewritten to a simplified form, for which a real solution is given, with with we will compare our numerical approximation to the real solution.
+
+\section{Problem}
+%something something dark side about how we decompose the abstract problem into a real programmable problem
+
+\section{Method}
+Reviewing the Poisson equation:
+\begin{align*}
+\nabla ^2 \Phi &= -4\pi\rho(\mathbf{r}), \ \text{which is simplified one-dimensionally by} \ \Phi(r) = \phi(r)/r \\
+\Rightarrow \frac{d^2 \phi}{dr^2} &= -4\pi r \rho(r), \ \text{which is further simplified by these substitutions:}\\
+r &\rightarrow x, \\
+\phi &\rightarrow u,\\
+4\pi r\rho(r) &\rightarrow f, \indent \text{which produces the simplified form}
+\end{align*}
+\begin{align*}\label{eq:1}\tag{1}
+-u''(x) &= f(x), \indent \text{for which we assume that} \indent f(x) = 100e^{-10x}, \\
+\Rightarrow u(x) &= 1- (1-e^{-10})x - e^{-10x},\ \text{with bounds:}\ x \in [0,1],\ u(0) = u(1)= 0
+\end{align*}
+To more easily comprehend the syntax from a programming viewpoint, one may refer to the each discretized representation of $x$ and $u$; we know the span of $x$, and therefore we may divide it up into appropriate chunks. Each of these $x_i$ will yield a corresponding $u_i$.
+
+We may calculate each to each discrete $x_i$ by the form $x_i = ih$ in the interval from $x_0 = 0$ to $x_{n} = 1$ as it is linearly increasing, meaning we use $n$ points in our approximation, yielding the step length $h = 1/n$. Of course, this also yields for the discretized representation of $u(x_i) = u_i$.
+
+
+Through Euler's teachings on discretized numerical derivation methods, a second derivative may be constructed through the form of
+\begin{align}
+\nonumber
+\left(\pd{u}{x}\right)_{fw} = \frac{u_{i+1} - u_i}{h} \quad\quad
+\left(\pd{u}{x}\right)_{bw} = \frac{u_{i} - u_{i-1}}{h} \\
+\nonumber
+\left(\pd{}{x}\right)^2[u_i] = \left(\pd{}{x}_{bw}\right)\left(\pd{}{x}\right)_{fw}[u_i] = \left(\pd{}{x}\right)_{bw}\left(\frac{u_{i+1} - u_i}{h}\right) =\frac{\left(\pd{u_{i+1}}{x}\right)_{bw} - \left(\pd{u_i}{x}\right)_{bw}}{h} \\
+\nonumber
+\left(\pd{}{x}\right)^2[u_i] = \frac{u_{+1} - 2u_i + u_{i-1}}{h^2}\\
+\label{eq:2} \tag{2}
+-u''(x_i) = - \frac{u_{+1} - 2u_i + u_{i-1}}{h^2} = \frac{- u_{i+1} + 2u_i - u_{i-1}}{h^2} = f_i , \indent \text{for}\ i = 1,...,n
+\end{align}
+
+The discretized prolem can now be solved as a linear algebraic problem.
+Looking closer at the discretized problem:
+\begin{align*}
+	-u''(x_i) = \frac{- u_{i+1} + 2u_i - u_{i-1}}{h^2} &= f_i \\
+	\Rightarrow -u_{i+1} + 2u_i - u_{i-1} &= h^2f_i = y_i\\
+	i = 1: \quad -u_2 + 2u_1 - u_0 &= y_1 \\
+	i = 2: \quad -u_3 + 2u_2 - u_1 &= y_2 \\
+	i = 3: \quad -u_4 + 2u_3 - u_2 &= y_3 \\
+	\vdots& \\
+	i = n: \quad -u_{n+1} + 2u_n - u_{n-1} &= y_n \\
+	\intertext{This is very similar to a linear algebra /matrix problem and we will test a system of equations to match.}
+	A \vec{u} &= \vec{y} \\
+	\begin{bmatrix} %matrix A
+		2 & -1 & 0 & \hdots & \\
+		-1 & 2 & -1 & \hdots & \\
+		0 & -1 & 2 & \ddots & \\
+		\vdots & \vdots & \ddots & \ddots & \\
+		& & & & 
+	\end{bmatrix} %matrix A
+	\begin{bmatrix} %vector u
+		u_0 \\
+		u_1 \\
+		\vdots \\
+		\\
+		u_{n+1}
+	\end{bmatrix} %vector u
+	&= \begin{bmatrix} %vector y
+		y_0 \\
+		y_1 \\
+		\vdots \\
+		\\
+		y_{n+1}
+	\end{bmatrix} %vector u
+	\intertext{This matrix equation will not be valid for the first and last values of $\vec{y}$ because they would require elements of $\vec{u}$ that are not defined; $u_{-1}$ and $u_{n+2}$. Given this constraint we see that the matrix-equation gives the same set of equations that we require.}
+	i = 1: \quad -u_2 + 2u_1 - u_0 &= y_1 \\
+	i = 2: \quad -u_3 + 2u_2 - u_1 &= y_2 \\
+	i = 3: \quad -u_4 + 2u_3 - u_2 &= y_3 \\
+	\vdots& \\
+	i = n: \quad -u_{n+1} + 2u_n - u_{n-1} &= y_n
+\end{align*}
+
+The original problem at hand (the Poisson equation) has now been "degraded" to a simpler, linear algebra problem. \\
+Solving a tridiagonal matrix-problem like this is done by gaussian elimination of the tridiagonal matrix A, and thereby solving $\vec{u}$ for the resulting diagonal-matrix. \\
+
+Firstly the tridiagonal matrix A is rewritten to a series of three vectors $\vec{a}$, $\vec{b}$, and $\vec{c}$ that will represent a general tridiagonal matrix. This will make it easier to include other problems of a general form later. \\
+The tridiagonal matrix A (with the vector y) now looks like: 
+\begin{align*}
+	\begin{bmatrix} %matrix [Ay]
+		b_1 & c_1 & 0 & 0 & \hdots && y_1\\
+		a_2 & b_2 & c_2 & 0 &&& y_2\\
+		0 & a_3 & b_3 & c_3 &&& \vdots\\
+		0 & 0 & a_4 & b_4 & \ddots &  & \\
+		\vdots &&& \ddots & \ddots & c_{n-1} & y_{n-1} \\
+		&&&& a_n & b_n &y_n
+	\end{bmatrix} %matrix [Ay]
+\end{align*}
+
+The gaussian elimination can be split into two parts; a forward substitution were the matrix-elements $a_i$ are set to zero, and a backward substituion were the vector-elements $u_i$ are calculated from known values. \\
+
+starting with row 2, a row-operation is performed to maintain the validity of the system. The goal is to remove element $a_2$ from the row. This is done by subtracting row 1 (multiplied with some constant 'k' from row 2. \\
+\begin{minipage}{0.5\linewidth}
+\begin{align*}
+	\begin{bmatrix} %matrix [Ay]
+		b_1 & c_1 & 0 & 0 & \hdots && y_1\\
+		\tilde{a}_2 & \tilde{b}_2 & \tilde{c}_2 & 0 &&& \tilde{y}_2\\
+		0 & a_3 & b_3 & c_3 &&& y_3\\
+		0 & 0 & a_4 & b_4 & \ddots && \vdots\\
+		\vdots &&& \ddots & \ddots & c_{n-1} & y_{n-1} \\
+		&&&& a_n & b_n &y_n
+	\end{bmatrix} %matrix [Ay]
+\end{align*}
+\end{minipage}
+\begin{minipage}{0.5\linewidth}
+	\begin{align*}
+	\tilde{Row_2} = Row_2 - k \times Row_1
+	\intertext{where k is determined by $\tilde{a}_2 = 0 \quad \Rightarrow k = \frac{a_2}{b_1}$}
+	\tilde{b}_2 = b_2 - \frac{a_2}{b_1} c_1 \\
+	\tilde{c}_2 = c_2 - \frac{a_2}{b_1} \times 0 = c_2 \\
+	\tilde{y}_2 = y_2 - \frac{a_2}{b_1} y_1
+	\end{align*}
+\end{minipage} \\
+
+Moving on to row 3, and performing a similar operation: \\
+
+\begin{minipage}{0.5\linewidth}
+\begin{align*}
+	\begin{bmatrix} %matrix [Ay]
+		b_1 & c_1 & 0 & 0 & \hdots && y_1\\
+		0 & \tilde{b}_2 & c_2 & 0 &&& \tilde{y}_2\\
+		0 & \tilde{a}_3 & \tilde{b}_3 & \tilde{c}_3 &&& \tilde{y}_3\\
+		0 & 0 & a_4 & b_4 & \ddots && \vdots\\
+		\vdots &&& \ddots & \ddots & c_{n-1} & y_{n-1} \\
+		&&&& a_n & b_n &y_n
+	\end{bmatrix} %matrix [Ay]
+\end{align*}
+\end{minipage}
+\begin{minipage}{0.5\linewidth}
+	\begin{align*}
+	\tilde{Row_3} = Row_3 - k \times Row_2
+	\intertext{where k is determined by $\tilde{a}_3 = 0 \quad \Rightarrow k = \frac{a_3}{\tilde{b}_2}$}
+	\tilde{b}_3 = b_3 - \frac{a_3}{\tilde{b}_2} c_2 \\
+	\tilde{c}_3 = c_3 - \frac{a_3}{\tilde{b}_2} \times 0 = c_3 \\
+	\tilde{y}_3 = y_3 - \frac{a_3}{\tilde{b}_2} \tilde{y}_2
+	\end{align*}
+\end{minipage} \\
+
+By repeating this step a pattern emerges, and an algorithm can be found: \\
+\begin{align*}
+	\tilde{b}_{i+1} = b_{i+1} - \frac{a_{i+1}}{\tilde{b}_i} c_{i} \\
+	\tilde{y}_{i+1} = y_{i+1} - \frac{a_{i+1}}{\tilde{b}_i} \tilde{y}_i \\
+	i = 1,2,\dots, n-1
+\end{align*}
+
+After this procedure, the tridiagonal matrix A is transformed into an uppertriangular matrix. This sort of set of equations can be solved for u, since the last equation has one unknown and the other equations has only two unknowns.  \\
+
+
+\end{document}
+%WHY??
+\begin{center}
+\line(1,0){450}
+\end{center}
+
+\newpage
+\section{Appendix - Program list}
+This is the code used in this assignment. Anything that was done by hand has been implemented into this pdf, above.
+\lstset{style=pystyle}
+\verb|plot_stuff.py|
+\lstinputlisting{../plot_stuff.py}
+
+
+\end{document}
